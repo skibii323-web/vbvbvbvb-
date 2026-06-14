@@ -22,14 +22,15 @@
     </div>
 
     <script>
-        // Ждем загрузки Clerk
+        // Ждем полную загрузку библиотеки Clerk
         window.addEventListener('load', async function () {
             await Clerk.load();
 
             const authZone = document.getElementById('clerk-auth-zone');
 
+            // Проверяем, вошел ли пользователь
             if (Clerk.user) {
-                // ЕСЛИ ВОШЕЛ: Показываем почту и простую кнопку "Выйти"
+                // ЕСЛИ ВОШЕЛ: Показываем почту и кнопку "Выйти"
                 authZone.innerHTML = `
                     <p style="font-size: 16px; color: #333; margin-bottom: 20px;">
                         Вы зашли как:<br><b style="color: #000;">${Clerk.user.primaryEmailAddress.emailAddress}</b>
@@ -39,23 +40,26 @@
                     </button>
                 `;
                 
-                // Вешаем событие выхода при нажатии на "Выйти"
+                // Логика кнопки "Выйти"
                 document.getElementById('sign-out-btn').addEventListener('click', async () => {
                     await Clerk.signOut();
-                    window.location.reload(); // Перезагружаем страницу после выхода
+                    window.location.href = window.location.origin; // Чистим адресную строку и обновляем
                 });
 
             } else {
-                // ЕСЛИ НЕ ВОШЕЛ: Показываем только одну кнопку "Войти"
+                // ЕСЛИ НЕ ВОШЕЛ: Показываем красивую синюю кнопку "Войти"
                 authZone.innerHTML = `
                     <button id="sign-in-btn" style="padding: 12px 24px; background: #2563eb; color: white; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; font-weight: bold; width: 100%;">
                         Войти
                     </button>
                 `;
                 
-                // Открываем окно входа при нажатии на "Войти"
+                // Логика кнопки "Войти" — жестко привязываем возврат на главную страницу сайта
                 document.getElementById('sign-in-btn').addEventListener('click', () => {
-                    Clerk.openSignIn();
+                    Clerk.openSignIn({
+                        redirectUrl: window.location.origin,
+                        signUpUrl: window.location.origin
+                    });
                 });
             }
         });
