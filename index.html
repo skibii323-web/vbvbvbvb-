@@ -15,35 +15,45 @@
 </head>
 <body style="font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: #f4f7f6;">
 
-    <div style="text-align: center; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-        <h1>Привет!</h1>
+    <div style="text-align: center; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); min-width: 300px;">
+        <h1>Мой сайт</h1>
         
         <div id="clerk-auth-zone"></div>
     </div>
 
     <script>
-        // Ждем, пока Clerk загрузится
+        // Ждем загрузки Clerk
         window.addEventListener('load', async function () {
             await Clerk.load();
 
             const authZone = document.getElementById('clerk-auth-zone');
 
             if (Clerk.user) {
-                // ЕСЛИ ВОШЕЛ: Показываем почту и стандартную кнопку-аватарку Clerk (там внутри есть "Выйти")
+                // ЕСЛИ ВОШЕЛ: Показываем почту и простую кнопку "Выйти"
                 authZone.innerHTML = `
-                    <p style="font-size: 18px; color: #333;">Вы вошли как: <b>${Clerk.user.primaryEmailAddress.emailAddress}</b></p>
-                    <div id="user-button"></div>
-                `;
-                Clerk.mountUserButton(document.getElementById('user-button'));
-            } else {
-                // ЕСЛИ НЕ ВОШЕЛ: Показываем простую кнопку "Войти"
-                authZone.innerHTML = `
-                    <button id="sign-in-btn" style="padding: 12px 24px; background: #2563eb; color: white; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; font-weight: bold;">
-                        Войти в аккаунт
+                    <p style="font-size: 16px; color: #333; margin-bottom: 20px;">
+                        Вы зашли как:<br><b style="color: #000;">${Clerk.user.primaryEmailAddress.emailAddress}</b>
+                    </p>
+                    <button id="sign-out-btn" style="padding: 10px 20px; background: #dc3545; color: white; border: none; border-radius: 6px; font-size: 15px; cursor: pointer; font-weight: bold; width: 100%;">
+                        Выйти
                     </button>
                 `;
                 
-                // Навешиваем открытие окна входа при нажатии на кнопку
+                // Вешаем событие выхода при нажатии на "Выйти"
+                document.getElementById('sign-out-btn').addEventListener('click', async () => {
+                    await Clerk.signOut();
+                    window.location.reload(); // Перезагружаем страницу после выхода
+                });
+
+            } else {
+                // ЕСЛИ НЕ ВОШЕЛ: Показываем только одну кнопку "Войти"
+                authZone.innerHTML = `
+                    <button id="sign-in-btn" style="padding: 12px 24px; background: #2563eb; color: white; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; font-weight: bold; width: 100%;">
+                        Войти
+                    </button>
+                `;
+                
+                // Открываем окно входа при нажатии на "Войти"
                 document.getElementById('sign-in-btn').addEventListener('click', () => {
                     Clerk.openSignIn();
                 });
